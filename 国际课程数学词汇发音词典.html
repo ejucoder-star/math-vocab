@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国际课程数学英语词汇发音词典</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F0F4F8; color: #1a1a2e; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #1F3864 0%, #2E75B6 100%);
+    color: white; padding: 24px 40px 18px;
+    box-shadow: 0 4px 16px rgba(31,56,100,0.3);
+  }
+  header h1 { font-size: 1.5rem; font-weight: 700; }
+  header p { font-size: 0.85rem; opacity: 0.82; margin-top: 5px; }
+
+  .toolbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 40px; background: white;
+    border-bottom: 1px solid #dde3ee;
+    flex-wrap: wrap; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .toolbar input {
+    flex: 1; min-width: 200px; max-width: 340px;
+    padding: 8px 14px; border: 1.5px solid #BDD7EE;
+    border-radius: 8px; font-size: 0.88rem; outline: none;
+  }
+  .toolbar input:focus { border-color: #2E75B6; }
+
+  .topic-tabs {
+    display: flex; gap: 4px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 5px 11px; border-radius: 16px;
+    border: 1.5px solid #ccc; background: white;
+    cursor: pointer; font-size: 0.75rem; font-weight: 600;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .tab.active { color: white !important; border-color: transparent !important; }
+
+  .voice-badge {
+    margin-left: auto; font-size: 0.75rem; color: #555;
+    background: #f0f7ff; padding: 5px 10px;
+    border-radius: 8px; border: 1px solid #BDD7EE;
+    white-space: nowrap;
+  }
+
+  .stats { font-size: 0.78rem; color: #888; padding: 6px 40px; background: #f8fafc; border-bottom: 1px solid #eee; }
+
+  .main { padding: 12px 40px 40px; }
+
+  .topic-section { margin-bottom: 28px; }
+
+  .topic-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-radius: 10px 10px 0 0;
+    font-size: 0.92rem; font-weight: 700; color: white;
+    margin-top: 20px;
+  }
+  .topic-header .badge {
+    background: rgba(255,255,255,0.22); border-radius: 12px;
+    padding: 2px 9px; font-size: 0.72rem;
+  }
+
+  .cat-header-row td {
+    font-weight: 700; font-size: 0.8rem;
+    color: white; padding: 5px 12px;
+  }
+
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+  thead th { padding: 9px 12px; font-size: 0.76rem; font-weight: 700; color: white; text-align: left; }
+  tbody tr { border-bottom: 1px solid #eef1f7; transition: background 0.12s; }
+  tbody tr:hover { background: #F5F8FF; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 12px; vertical-align: middle; font-size: 0.85rem; }
+
+  .td-en { font-weight: 700; font-size: 0.88rem; color: #1a1a2e; }
+  .td-ipa { font-style: italic; color: #3a3a8a; font-size: 0.82rem; }
+  .td-zh { font-weight: 600; color: #1F3864; }
+  .td-note { font-size: 0.78rem; color: #666; }
+
+  .play-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: none; border: 1.5px solid currentColor;
+    border-radius: 16px; padding: 4px 10px;
+    cursor: pointer; font-size: 0.75rem; font-weight: 600;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .play-btn:hover { opacity: 0.8; transform: scale(1.04); }
+  .play-btn.speaking { animation: pulse 0.5s infinite alternate; }
+  .play-btn svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+  @keyframes pulse { from { opacity:1; } to { opacity:0.5; } }
+
+  .cambridge-link {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 0.72rem; color: #2E75B6; text-decoration: none;
+    padding: 3px 7px; border-radius: 10px;
+    border: 1px solid #BDD7EE; transition: all 0.12s;
+    white-space: nowrap; margin-top: 3px;
+  }
+  .cambridge-link:hover { background: #EBF0FB; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 700px) {
+    header, .toolbar, .main, .stats { padding-left: 12px; padding-right: 12px; }
+    .td-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📐 国际课程数学英语词汇发音词典</h1>
+  <p>IGCSE · A-Level · AP &nbsp;|&nbsp; 涵盖10大专题 · 共350+词汇 &nbsp;|&nbsp; 点击「▶ 播放」收听英式发音</p>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="searchInput" placeholder="🔍 搜索英文、中文或音标…" oninput="doFilter()">
+  <div class="topic-tabs" id="topicTabs"></div>
+  <div class="voice-badge" id="voiceBadge">🔊 加载语音中…</div>
+</div>
+<div class="stats">显示 <strong id="visCount">0</strong> 个词汇</div>
+
+<div class="main" id="mainContent"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// VOCABULARY DATA
+// Format: [topic, category, english, ipa, chinese, note]
+// ═══════════════════════════════════════════════════════════════
+const ALL = [
+
+// ─── 1. 代数与函数 ─────────────────────────────────────────────
+["代数与函数","基础概念","Algebra","/ˈæl.dʒɪ.brə/","代数",""],
+["代数与函数","基础概念","Variable","/ˈveə.ri.ə.bəl/","变量","用字母表示未知数"],
+["代数与函数","基础概念","Constant","/ˈkɒn.stənt/","常数","固定不变的数值"],
+["代数与函数","基础概念","Coefficient","/ˌkəʊ.ɪˈfɪʃ.ənt/","系数","变量前的数，如 3x 中的 3"],
+["代数与函数","基础概念","Expression","/ɪkˈspreʃ.ən/","代数式","不含等号的式子"],
+["代数与函数","基础概念","Equation","/ɪˈkweɪ.ʒən/","方程","含等号的式子"],
+["代数与函数","基础概念","Formula","/ˈfɔː.mjʊ.lə/","公式",""],
+["代数与函数","基础概念","Identity","/aɪˈden.tɪ.ti/","恒等式","对所有值都成立"],
+["代数与函数","基础概念","Term","/tɜːm/","项","代数式中的每一部分"],
+["代数与函数","基础概念","Like terms","/laɪk tɜːmz/","同类项","变量及次数相同的项"],
+["代数与函数","基础概念","Degree","/dɪˈɡriː/","次数","最高幂次"],
+["代数与函数","基础概念","Integer","/ˈɪn.tɪ.dʒər/","整数",""],
+["代数与函数","基础概念","Rational number","/ˈræʃ.ən.əl ˈnʌm.bər/","有理数","可写成分数"],
+["代数与函数","基础概念","Irrational number","/ɪˈræʃ.ən.əl ˈnʌm.bər/","无理数","如 √2、π"],
+["代数与函数","代数式运算","Expand","/ɪkˈspænd/","展开","去括号"],
+["代数与函数","代数式运算","Simplify","/ˈsɪm.plɪ.faɪ/","化简",""],
+["代数与函数","代数式运算","Factorise","/ˈfæk.tər.aɪz/","因式分解","英式写法"],
+["代数与函数","代数式运算","Common factor","/ˈkɒm.ən ˈfæk.tər/","公因式",""],
+["代数与函数","代数式运算","Difference of two squares","/ˈdɪf.ər.əns əv tuː skweəz/","平方差","a²-b²=(a+b)(a-b)"],
+["代数与函数","代数式运算","Surd","/sɜːd/","根式（不可化简）","如 √3、2√5"],
+["代数与函数","代数式运算","Rationalise the denominator","/ˈræʃ.ən.ə.laɪz ðə dɪˈnɒm.ɪ.neɪ.tər/","有理化分母",""],
+["代数与函数","代数式运算","Conjugate","/ˈkɒn.dʒʊ.ɡɪt/","共轭","a+√b 的共轭是 a-√b"],
+["代数与函数","代数式运算","Index / Indices","/ˈɪn.deks/ /ˈɪn.dɪ.siːz/","指数","英式说法"],
+["代数与函数","代数式运算","Numerator","/ˈnjuː.mər.eɪ.tər/","分子","分数上方"],
+["代数与函数","代数式运算","Denominator","/dɪˈnɒm.ɪ.neɪ.tər/","分母","分数下方"],
+["代数与函数","方程","Quadratic equation","/kwɒˈdræt.ɪk ɪˈkweɪ.ʒən/","二次方程","ax²+bx+c=0"],
+["代数与函数","方程","Completing the square","/kəmˈpliː.tɪŋ ðə skweər/","配方法",""],
+["代数与函数","方程","Quadratic formula","/kwɒˈdræt.ɪk ˈfɔː.mjʊ.lə/","求根公式",""],
+["代数与函数","方程","Discriminant","/dɪˈskrɪm.ɪ.nənt/","判别式","Δ=b²-4ac"],
+["代数与函数","方程","Repeated root","/rɪˈpiː.tɪd ruːt/","重根","Δ=0"],
+["代数与函数","方程","Simultaneous equations","/ˌsɪm.əlˈteɪ.ni.əs ɪˈkweɪ.ʒənz/","联立方程",""],
+["代数与函数","方程","Substitution method","/ˌsʌb.stɪˈtjuː.ʃən ˈmeθ.əd/","代入法",""],
+["代数与函数","方程","Elimination method","/ɪˌlɪm.ɪˈneɪ.ʃən ˈmeθ.əd/","消元法",""],
+["代数与函数","方程","Vieta's formulas","/viˈeɪ.təz ˈfɔː.mjʊ.ləz/","韦达定理","根与系数关系"],
+["代数与函数","不等式","Inequality","/ˌɪn.ɪˈkwɒl.ɪ.ti/","不等式",""],
+["代数与函数","不等式","Quadratic inequality","/kwɒˈdræt.ɪk ɪn.ɪˈkwɒl.ɪ.ti/","二次不等式",""],
+["代数与函数","不等式","Interval notation","/ˈɪn.tə.vəl nəʊˈteɪ.ʃən/","区间表示法","如 (2,5]"],
+["代数与函数","函数","Function","/ˈfʌŋk.ʃən/","函数",""],
+["代数与函数","函数","Domain","/dəˈmeɪn/","定义域","x 的允许取值范围"],
+["代数与函数","函数","Range","/reɪndʒ/","值域","f(x) 的输出范围"],
+["代数与函数","函数","Composite function","/ˈkɒm.pə.zɪt ˈfʌŋk.ʃən/","复合函数","fg(x)"],
+["代数与函数","函数","Inverse function","/ˈɪn.vɜːs ˈfʌŋk.ʃən/","反函数","f⁻¹(x)"],
+["代数与函数","函数","One-to-one function","/wʌn tə wʌn ˈfʌŋk.ʃən/","一对一函数",""],
+["代数与函数","函数","Modulus function","/ˈmɒd.jʊ.ləs ˈfʌŋk.ʃən/","绝对值函数","y=|f(x)|"],
+["代数与函数","函数","Even function","/ˈiː.vən ˈfʌŋk.ʃən/","偶函数","f(-x)=f(x)"],
+["代数与函数","函数","Odd function","/ɒd ˈfʌŋk.ʃən/","奇函数","f(-x)=-f(x)"],
+["代数与函数","函数","Parabola","/pəˈræb.ə.lə/","抛物线","二次函数图像"],
+["代数与函数","函数","Asymptote","/ˈæs.ɪm.təʊt/","渐近线",""],
+["代数与函数","函数","Vertex","/ˈvɜː.teks/","顶点","抛物线最高/最低点"],
+["代数与函数","函数","Axis of symmetry","/ˈæk.sɪs əv ˈsɪm.ɪ.tri/","对称轴",""],
+["代数与函数","函数","Turning point","/ˈtɜː.nɪŋ pɔɪnt/","转折点","即顶点，英式用法"],
+["代数与函数","图像变换","Translation","/trænsˈleɪ.ʃən/","平移",""],
+["代数与函数","图像变换","Reflection","/rɪˈflek.ʃən/","反射","关于轴翻转"],
+["代数与函数","图像变换","Stretch","/stretʃ/","伸缩",""],
+["代数与函数","图像变换","Invariant point","/ɪnˈveə.ri.ənt pɔɪnt/","不动点","变换后位置不变的点"],
+["代数与函数","多项式","Polynomial","/ˌpɒl.ɪˈnəʊ.mi.əl/","多项式",""],
+["代数与函数","多项式","Remainder Theorem","/rɪˈmeɪn.dər ˈθɪə.rəm/","余数定理","f(x)÷(x-a)余数=f(a)"],
+["代数与函数","多项式","Factor Theorem","/ˈfæk.tər ˈθɪə.rəm/","因式定理","f(a)=0则(x-a)是因式"],
+["代数与函数","多项式","Binomial expansion","/baɪˈnəʊ.mi.əl ɪkˈspæn.ʃən/","二项展开式","(a+b)ⁿ"],
+["代数与函数","多项式","Partial fractions","/ˈpɑː.ʃəl ˈfræk.ʃənz/","部分分式",""],
+["代数与函数","多项式","Quotient","/ˈkwəʊ.ʃənt/","商","除法整数部分"],
+["代数与函数","数列","Arithmetic sequence","/ˌæ.rɪθˈmet.ɪk ˈsiː.kwəns/","等差数列",""],
+["代数与函数","数列","Geometric sequence","/ˌdʒiː.əˈmet.rɪk ˈsiː.kwəns/","等比数列",""],
+["代数与函数","数列","Common difference","/ˈkɒm.ən ˈdɪf.ər.əns/","公差","记作d"],
+["代数与函数","数列","Common ratio","/ˈkɒm.ən ˈreɪ.ʃiˌəʊ/","公比","记作r"],
+["代数与函数","数列","Sum to infinity","/sʌm tə ɪnˈfɪn.ɪ.ti/","无穷级数和","|r|<1时收敛"],
+["代数与函数","数列","Converge","/kənˈvɜːdʒ/","收敛",""],
+["代数与函数","数列","Diverge","/daɪˈvɜːdʒ/","发散",""],
+
+// ─── 2. 坐标几何 ───────────────────────────────────────────────
+["坐标几何","直线","Coordinate","/kəʊˈɔː.dɪ.nət/","坐标",""],
+["坐标几何","直线","Origin","/ˈɒr.ɪ.dʒɪn/","原点","(0,0)"],
+["坐标几何","直线","Gradient / Slope","/ˈɡreɪ.di.ənt/ /sləʊp/","斜率","m=(y₂-y₁)/(x₂-x₁)"],
+["坐标几何","直线","y-intercept","/waɪ ˈɪn.tə.sept/","y轴截距","直线与y轴交点"],
+["坐标几何","直线","x-intercept","/eks ˈɪn.tə.sept/","x轴截距","直线与x轴交点"],
+["坐标几何","直线","Midpoint","/ˈmɪd.pɔɪnt/","中点",""],
+["坐标几何","直线","Distance formula","/ˈdɪs.təns ˈfɔː.mjʊ.lə/","距离公式",""],
+["坐标几何","直线","Parallel","/ˈpær.ə.lel/","平行","平行线斜率相等"],
+["坐标几何","直线","Perpendicular","/ˌpɜː.pənˈdɪk.jʊ.lər/","垂直","斜率之积=-1"],
+["坐标几何","直线","Collinear","/kəˈlɪn.i.ər/","共线","三点在同一直线上"],
+["坐标几何","直线","Point-slope form","/pɔɪnt sləʊp fɔːm/","点斜式","y-y₁=m(x-x₁)"],
+["坐标几何","直线","General form","/ˈdʒen.ər.əl fɔːm/","一般式","ax+by+c=0"],
+["坐标几何","圆","Circle","/ˈsɜː.kəl/","圆",""],
+["坐标几何","圆","Centre","/ˈsen.tər/","圆心","英式拼写，美式为 center"],
+["坐标几何","圆","Radius","/ˈreɪ.di.əs/","半径",""],
+["坐标几何","圆","Diameter","/daɪˈæm.ɪ.tər/","直径",""],
+["坐标几何","圆","Chord","/kɔːd/","弦","圆内连接两点的线段"],
+["坐标几何","圆","Tangent","/ˈtæn.dʒənt/","切线","与圆恰好相切的直线"],
+["坐标几何","圆","Normal","/ˈnɔː.məl/","法线","切点处与切线垂直的线"],
+["坐标几何","圆","Perpendicular bisector","/ˌpɜː.pənˈdɪk.jʊ.lər baɪˈsek.tər/","垂直平分线",""],
+["坐标几何","圆","Circumscribed circle","/ˈsɜː.kəm.skraɪbd ˈsɜː.kəl/","外接圆",""],
+
+// ─── 3. 三角学 ─────────────────────────────────────────────────
+["三角学","基础","Trigonometry","/ˌtrɪɡ.əˈnɒm.ɪ.tri/","三角学",""],
+["三角学","基础","Sine","/saɪn/","正弦","sin"],
+["三角学","基础","Cosine","/ˈkəʊ.saɪn/","余弦","cos"],
+["三角学","基础","Tangent","/ˈtæn.dʒənt/","正切","tan"],
+["三角学","基础","Cosecant","/kəʊˈsiː.kənt/","余割","csc，1/sin"],
+["三角学","基础","Secant","/ˈsiː.kənt/","正割","sec，1/cos"],
+["三角学","基础","Cotangent","/kəʊˈtæn.dʒənt/","余切","cot，1/tan"],
+["三角学","基础","Hypotenuse","/haɪˈpɒt.ɪ.njuːz/","斜边","直角三角形最长边"],
+["三角学","基础","Opposite","/ˈɒp.ə.zɪt/","对边","相对于某角的边"],
+["三角学","基础","Adjacent","/əˈdʒeɪ.sənt/","邻边","紧靠某角的非斜边"],
+["三角学","基础","SOHCAHTOA","/ˌsəʊ.kəˈtəʊ.ə/","三角比记忆口诀","Sin=Opp/Hyp etc."],
+["三角学","弧度制","Radian","/ˈreɪ.di.ən/","弧度","角度的另一种单位"],
+["三角学","弧度制","Arc length","/ɑːk leŋθ/","弧长","l=rθ"],
+["三角学","弧度制","Sector","/ˈsek.tər/","扇形",""],
+["三角学","弧度制","Sector area","/ˈsek.tər ˈeə.ri.ə/","扇形面积","A=½r²θ"],
+["三角学","恒等式","Pythagorean identity","/paɪˌθæɡ.əˈriː.ən aɪˈden.tɪ.ti/","勾股恒等式","sin²θ+cos²θ=1"],
+["三角学","恒等式","Double angle formula","/ˈdʌb.əl ˈæŋ.ɡəl ˈfɔː.mjʊ.lə/","双角公式","sin2θ=2sinθcosθ"],
+["三角学","恒等式","Addition formula","/əˈdɪʃ.ən ˈfɔː.mjʊ.lə/","加法公式","sin(A±B)等"],
+["三角学","恒等式","Compound angle","/ˈkɒm.paʊnd ˈæŋ.ɡəl/","复合角",""],
+["三角学","恒等式","Harmonic form","/hɑːˈmɒn.ɪk fɔːm/","辅助角形式","Rsin(x+α)"],
+["三角学","解三角形","Sine rule","/saɪn ruːl/","正弦定理","a/sinA=b/sinB=c/sinC"],
+["三角学","解三角形","Cosine rule","/ˈkəʊ.saɪn ruːl/","余弦定理","a²=b²+c²-2bc·cosA"],
+["三角学","解三角形","Ambiguous case","/æmˈbɪɡ.ju.əs keɪs/","模糊情况","正弦定理的两解情况"],
+["三角学","解三角形","Angle of elevation","/ˈæŋ.ɡəl əv ˌel.ɪˈveɪ.ʃən/","仰角",""],
+["三角学","解三角形","Angle of depression","/ˈæŋ.ɡəl əv dɪˈpreʃ.ən/","俯角",""],
+["三角学","图像","Amplitude","/ˈæm.plɪ.tjuːd/","振幅","波的最大值"],
+["三角学","图像","Period","/ˈpɪə.ri.əd/","周期","函数完整循环所需长度"],
+["三角学","图像","Frequency","/ˈfriː.kwən.si/","频率","单位长度内的周期数"],
+["三角学","图像","Phase shift","/feɪz ʃɪft/","相移","图像水平移动"],
+["三角学","反三角函数","Inverse sine / arcsin","/ˈɪn.vɜːs saɪn/ /ˈɑːk.saɪn/","反正弦",""],
+["三角学","反三角函数","Inverse cosine / arccos","/ˈɪn.vɜːs ˈkəʊ.saɪn/","反余弦",""],
+["三角学","反三角函数","Inverse tangent / arctan","/ˈɪn.vɜːs ˈtæn.dʒənt/","反正切",""],
+
+// ─── 4. 指数与对数 ─────────────────────────────────────────────
+["指数与对数","指数","Exponential","/ˌek.spəˈnen.ʃəl/","指数的",""],
+["指数与对数","指数","Exponential growth","/ˌek.spəˈnen.ʃəl ɡrəʊθ/","指数增长",""],
+["指数与对数","指数","Exponential decay","/ˌek.spəˈnen.ʃəl dɪˈkeɪ/","指数衰减",""],
+["指数与对数","指数","Base","/beɪs/","底数","如 2ˣ 中的 2"],
+["指数与对数","指数","Power","/ˈpaʊ.ər/","幂次",""],
+["指数与对数","指数","Natural exponential","/ˈnætʃ.ər.əl ˌek.spəˈnen.ʃəl/","自然指数","eˣ"],
+["指数与对数","指数","Euler's number","/ˈɔɪ.lərz ˈnʌm.bər/","欧拉数","e≈2.718…"],
+["指数与对数","对数","Logarithm","/ˈlɒɡ.ər.ɪð.əm/","对数",""],
+["指数与对数","对数","Natural logarithm","/ˈnætʃ.ər.əl ˈlɒɡ.ər.ɪð.əm/","自然对数","ln(x)"],
+["指数与对数","对数","Common logarithm","/ˈkɒm.ən ˈlɒɡ.ər.ɪð.əm/","常用对数","log₁₀(x)"],
+["指数与对数","对数","Logarithmic scale","/ˌlɒɡ.əˈrɪð.mɪk skeɪl/","对数尺度",""],
+["指数与对数","对数","Change of base","/tʃeɪndʒ əv beɪs/","换底公式","log_a(x)=ln(x)/ln(a)"],
+["指数与对数","对数","Laws of logarithms","/lɔːz əv ˈlɒɡ.ər.ɪð.əmz/","对数法则","乘除幂次规律"],
+["指数与对数","应用","Half-life","/hɑːf laɪf/","半衰期","放射性衰减模型"],
+["指数与对数","应用","Doubling time","/ˈdʌb.lɪŋ taɪm/","倍增时间","增长模型"],
+["指数与对数","应用","Linearisation","/ˌlɪn.i.ər.aɪˈzeɪ.ʃən/","线性化","y=axⁿ转为直线形式"],
+
+// ─── 5. 微积分 ─────────────────────────────────────────────────
+["微积分","极限","Limit","/ˈlɪm.ɪt/","极限",""],
+["微积分","极限","Approaches","/əˈprəʊtʃɪz/","趋近于","x→a"],
+["微积分","极限","Continuity","/ˌkɒn.tɪˈnjuː.ɪ.ti/","连续性",""],
+["微积分","极限","Discontinuity","/ˌdɪs.kɒn.tɪˈnjuː.ɪ.ti/","间断点",""],
+["微积分","极限","L'Hôpital's rule","/ˌlɒˈpiː.tɑːlz ruːl/","洛必达法则","0/0型极限"],
+["微积分","极限","Squeeze theorem","/skwiːz ˈθɪə.rəm/","挤压定理",""],
+["微积分","微分","Derivative","/dɪˈrɪv.ə.tɪv/","导数","f'(x)"],
+["微积分","微分","Differentiate","/ˌdɪf.əˈren.ʃi.eɪt/","求导",""],
+["微积分","微分","Differentiation","/ˌdɪf.əˌren.ʃiˈeɪ.ʃən/","微分",""],
+["微积分","微分","First principles","/fɜːst ˈprɪn.sɪ.pəlz/","第一原理","从定义出发求导"],
+["微积分","微分","Product rule","/ˈprɒd.əkt ruːl/","乘法法则","(uv)'=u'v+uv'"],
+["微积分","微分","Quotient rule","/ˈkwəʊ.ʃənt ruːl/","除法法则","(u/v)'=(u'v-uv')/v²"],
+["微积分","微分","Chain rule","/tʃeɪn ruːl/","链式法则","dy/dx=dy/du·du/dx"],
+["微积分","微分","Implicit differentiation","/ɪmˈplɪs.ɪt ˌdɪf.əˌren.ʃiˈeɪ.ʃən/","隐函数求导",""],
+["微积分","微分","Parametric differentiation","/ˌpær.əˈmet.rɪk ˌdɪf.əˌren.ʃiˈeɪ.ʃən/","参数方程求导",""],
+["微积分","微分","Stationary point","/ˈsteɪ.ʃən.ər.i pɔɪnt/","驻点","f'(x)=0的点"],
+["微积分","微分","Local maximum","/ˈləʊ.kəl ˈmæk.sɪ.məm/","极大值",""],
+["微积分","微分","Local minimum","/ˈləʊ.kəl ˈmɪn.ɪ.məm/","极小值",""],
+["微积分","微分","Point of inflection","/pɔɪnt əv ɪnˈflek.ʃən/","拐点","凹凸性改变的点"],
+["微积分","微分","Second derivative","/ˈsek.ənd dɪˈrɪv.ə.tɪv/","二阶导数","f''(x)"],
+["微积分","微分","Rate of change","/reɪt əv tʃeɪndʒ/","变化率",""],
+["微积分","微分","Optimisation","/ˌɒp.tɪ.maɪˈzeɪ.ʃən/","最优化","求最大最小值"],
+["微积分","积分","Integral","/ˈɪn.tɪ.ɡrəl/","积分",""],
+["微积分","积分","Integrate","/ˈɪn.tɪ.ɡreɪt/","积分（动词）",""],
+["微积分","积分","Integration","/ˌɪn.tɪˈɡreɪ.ʃən/","积分法",""],
+["微积分","积分","Indefinite integral","/ɪnˈdef.ɪ.nɪt ˈɪn.tɪ.ɡrəl/","不定积分","含常数C"],
+["微积分","积分","Definite integral","/ˈdef.ɪ.nɪt ˈɪn.tɪ.ɡrəl/","定积分","有上下限"],
+["微积分","积分","Constant of integration","/ˈkɒn.stənt əv ˌɪn.tɪˈɡreɪ.ʃən/","积分常数","+C"],
+["微积分","积分","Fundamental theorem of calculus","/ˌfʌn.dəˈmen.tl ˈθɪə.rəm əv ˈkæl.kjʊ.ləs/","微积分基本定理",""],
+["微积分","积分","Substitution","/ˌsʌb.stɪˈtjuː.ʃən/","换元积分法","u-substitution"],
+["微积分","积分","Integration by parts","/ˌɪn.tɪˈɡreɪ.ʃən baɪ pɑːts/","分部积分法","∫udv=uv-∫vdu"],
+["微积分","积分","Trapezium rule","/trəˈpiː.zi.əm ruːl/","梯形法则","数值积分"],
+["微积分","积分","Area under curve","/ˈeə.ri.ə ˈʌn.dər kɜːv/","曲线下面积",""],
+["微积分","积分","Volume of revolution","/ˈvɒl.juːm əv ˌrev.əˈluː.ʃən/","旋转体体积",""],
+["微积分","微分方程","Differential equation","/ˌdɪf.əˈren.ʃəl ɪˈkweɪ.ʒən/","微分方程","含dy/dx"],
+["微积分","微分方程","Separable variables","/ˈsep.ər.ə.bəl ˈveə.ri.ə.bəlz/","可分离变量",""],
+["微积分","微分方程","General solution","/ˈdʒen.ər.əl səˈluː.ʃən/","通解","含任意常数"],
+["微积分","微分方程","Particular solution","/pəˈtɪk.jʊ.lər səˈluː.ʃən/","特解","代入初始条件"],
+["微积分","微分方程","Slope field","/sləʊp fiːld/","斜率场","AP用语"],
+["微积分","级数（AP）","Power series","/ˈpaʊ.ər ˈsɪə.riːz/","幂级数",""],
+["微积分","级数（AP）","Taylor series","/ˈteɪ.lər ˈsɪə.riːz/","泰勒级数",""],
+["微积分","级数（AP）","Maclaurin series","/məˈklɔː.rɪn ˈsɪə.riːz/","麦克劳林级数","x=0处的泰勒展开"],
+["微积分","级数（AP）","Radius of convergence","/ˈreɪ.di.əs əv kənˈvɜː.dʒəns/","收敛半径",""],
+["微积分","级数（AP）","Ratio test","/ˈreɪ.ʃi.əʊ test/","比值判别法",""],
+["微积分","级数（AP）","Alternating series","/ˈɔːl.tə.neɪ.tɪŋ ˈsɪə.riːz/","交错级数",""],
+["微积分","级数（AP）","Lagrange error bound","/ləˈɡrɑːndʒ ˈer.ər baʊnd/","拉格朗日误差界",""],
+
+// ─── 6. 向量 ──────────────────────────────────────────────────
+["向量","基础","Vector","/ˈvek.tər/","向量","有大小和方向"],
+["向量","基础","Scalar","/ˈskeɪ.lər/","标量","只有大小"],
+["向量","基础","Magnitude","/ˈmæɡ.nɪ.tjuːd/","模（大小）","向量的长度"],
+["向量","基础","Direction","/dɪˈrek.ʃən/","方向",""],
+["向量","基础","Unit vector","/ˈjuː.nɪt ˈvek.tər/","单位向量","模为1的向量"],
+["向量","基础","Position vector","/pəˈzɪʃ.ən ˈvek.tər/","位置向量","从原点出发"],
+["向量","基础","Column vector","/ˈkɒl.əm ˈvek.tər/","列向量","竖写的分量形式"],
+["向量","运算","Resultant","/rɪˈzʌl.tənt/","合向量","向量相加的结果"],
+["向量","运算","Scalar multiplication","/ˈskeɪ.lər ˌmʌl.tɪ.plɪˈkeɪ.ʃən/","数乘","数与向量相乘"],
+["向量","运算","Dot product","/dɒt ˈprɒd.əkt/","点积","a·b=|a||b|cosθ"],
+["向量","运算","Scalar product","/ˈskeɪ.lər ˈprɒd.əkt/","标量积","即点积，英式常用"],
+["向量","运算","Cross product","/krɒs ˈprɒd.əkt/","叉积","A-Level一般不考"],
+["向量","直线","Direction vector","/dɪˈrek.ʃən ˈvek.tər/","方向向量",""],
+["向量","直线","Vector equation of line","/ˈvek.tər ɪˈkweɪ.ʒən əv laɪn/","直线向量方程","r=a+λb"],
+["向量","直线","Parallel vectors","/ˈpær.ə.lel ˈvek.tərz/","平行向量","方向相同或相反"],
+["向量","直线","Perpendicular vectors","/ˌpɜː.pənˈdɪk.jʊ.lər ˈvek.tərz/","垂直向量","点积=0"],
+["向量","直线","Intersect","/ˌɪn.təˈsekt/","相交",""],
+["向量","直线","Skew lines","/skjuː laɪnz/","异面直线","3D中不平行也不相交"],
+
+// ─── 7. 概率与统计 ─────────────────────────────────────────────
+["概率与统计","数据","Data","/ˈdeɪ.tə/","数据",""],
+["概率与统计","数据","Discrete data","/dɪˈskriːt ˈdeɪ.tə/","离散数据","可数的"],
+["概率与统计","数据","Continuous data","/kənˈtɪn.ju.əs ˈdeɪ.tə/","连续数据","测量得到的"],
+["概率与统计","数据","Frequency","/ˈfriː.kwən.si/","频率/频数",""],
+["概率与统计","数据","Relative frequency","/ˈrel.ə.tɪv ˈfriː.kwən.si/","相对频率",""],
+["概率与统计","数据","Class interval","/klɑːs ˈɪn.tə.vəl/","组距","分组数据的区间"],
+["概率与统计","集中趋势","Mean","/miːn/","均值","平均数"],
+["概率与统计","集中趋势","Median","/ˈmiː.di.ən/","中位数","中间值"],
+["概率与统计","集中趋势","Mode","/məʊd/","众数","出现最多的值"],
+["概率与统计","集中趋势","Weighted mean","/ˈweɪ.tɪd miːn/","加权平均",""],
+["概率与统计","离散程度","Range","/reɪndʒ/","极差","最大值-最小值"],
+["概率与统计","离散程度","Variance","/ˈveə.ri.əns/","方差","σ²"],
+["概率与统计","离散程度","Standard deviation","/ˈstæn.dəd ˌdiː.viˈeɪ.ʃən/","标准差","σ"],
+["概率与统计","离散程度","Interquartile range","/ˌɪn.tə.ˈkwɔː.taɪl reɪndʒ/","四分位距","IQR=Q3-Q1"],
+["概率与统计","离散程度","Outlier","/ˈaʊt.laɪ.ər/","异常值","超出正常范围的数据"],
+["概率与统计","图表","Histogram","/ˈhɪs.tə.ɡræm/","频率直方图",""],
+["概率与统计","图表","Box plot","/bɒks plɒt/","箱形图",""],
+["概率与统计","图表","Scatter diagram","/ˈskæt.ər ˈdaɪ.ə.ɡræm/","散点图",""],
+["概率与统计","图表","Cumulative frequency","/ˈkjuː.mjʊ.lə.tɪv ˈfriː.kwən.si/","累积频率",""],
+["概率与统计","图表","Stem-and-leaf plot","/stem ænd liːf plɒt/","茎叶图",""],
+["概率与统计","概率","Probability","/ˌprɒb.əˈbɪl.ɪ.ti/","概率",""],
+["概率与统计","概率","Sample space","/ˈsɑːm.pəl speɪs/","样本空间","所有可能结果"],
+["概率与统计","概率","Event","/ɪˈvent/","事件",""],
+["概率与统计","概率","Mutually exclusive","/ˈmjuː.tʃu.ə.li ɪkˈskluː.sɪv/","互斥事件","不能同时发生"],
+["概率与统计","概率","Independent events","/ˌɪn.dɪˈpen.dənt ɪˈvents/","独立事件","互不影响"],
+["概率与统计","概率","Conditional probability","/kənˈdɪʃ.ən.əl ˌprɒb.əˈbɪl.ɪ.ti/","条件概率","P(A|B)"],
+["概率与统计","概率","Tree diagram","/triː ˈdaɪ.ə.ɡræm/","树形图",""],
+["概率与统计","概率","Venn diagram","/ven ˈdaɪ.ə.ɡræm/","韦恩图",""],
+["概率与统计","概率","Complement","/ˈkɒm.plɪ.mənt/","补集/余事件","P(A')=1-P(A)"],
+["概率与统计","分布","Random variable","/ˈræn.dəm ˈveə.ri.ə.bəl/","随机变量",""],
+["概率与统计","分布","Expected value","/ɪkˈspek.tɪd ˈvæl.juː/","期望值","E(X)"],
+["概率与统计","分布","Binomial distribution","/baɪˈnəʊ.mi.əl ˌdɪs.trɪˈbjuː.ʃən/","二项分布","B(n,p)"],
+["概率与统计","分布","Normal distribution","/ˈnɔː.məl ˌdɪs.trɪˈbjuː.ʃən/","正态分布","N(μ,σ²)"],
+["概率与统计","分布","Poisson distribution","/ˈpwɑː.sɒn ˌdɪs.trɪˈbjuː.ʃən/","泊松分布","Po(λ)"],
+["概率与统计","分布","Standard normal","/ˈstæn.dəd ˈnɔː.məl/","标准正态","N(0,1)"],
+["概率与统计","分布","Z-score","/zed skɔːr/","Z分数","标准化值"],
+["概率与统计","推断","Hypothesis test","/haɪˈpɒθ.ɪ.sɪs test/","假设检验",""],
+["概率与统计","推断","Null hypothesis","/nʌl haɪˈpɒθ.ɪ.sɪs/","零假设","H₀"],
+["概率与统计","推断","Alternative hypothesis","/ɔːlˈtɜː.nə.tɪv haɪˈpɒθ.ɪ.sɪs/","备择假设","H₁"],
+["概率与统计","推断","Significance level","/sɪɡˈnɪf.ɪ.kəns ˈlev.əl/","显著性水平","通常0.05"],
+["概率与统计","推断","p-value","/piː ˈvæl.juː/","p值",""],
+["概率与统计","推断","Confidence interval","/ˈkɒn.fɪ.dəns ˈɪn.tə.vəl/","置信区间",""],
+["概率与统计","推断","Type I error","/taɪp wʌn ˈer.ər/","第一类错误","拒真"],
+["概率与统计","推断","Type II error","/taɪp tuː ˈer.ər/","第二类错误","取伪"],
+["概率与统计","推断","Correlation coefficient","/ˌkɒr.əˈleɪ.ʃən ˌkəʊ.ɪˈfɪʃ.ənt/","相关系数","Pearson r"],
+["概率与统计","推断","Regression line","/rɪˈɡreʃ.ən laɪn/","回归线","最小二乘法"],
+["概率与统计","推断","Chi-squared test","/kaɪ skweəd test/","卡方检验",""],
+
+// ─── 8. 力学 ──────────────────────────────────────────────────
+["力学","运动学","Kinematics","/ˌkɪn.ɪˈmæt.ɪks/","运动学","研究运动不研究原因"],
+["力学","运动学","Displacement","/dɪˈspleɪs.mənt/","位移","有方向的距离"],
+["力学","运动学","Velocity","/vəˈlɒs.ɪ.ti/","速度","有方向"],
+["力学","运动学","Speed","/spiːd/","速率","无方向"],
+["力学","运动学","Acceleration","/əkˌsel.əˈreɪ.ʃən/","加速度",""],
+["力学","运动学","Uniform acceleration","/ˈjuː.nɪ.fɔːm əkˌsel.əˈreɪ.ʃən/","匀加速",""],
+["力学","运动学","SUVAT equations","/ˈsuː.væt ɪˈkweɪ.ʒənz/","匀变速运动公式","s,u,v,a,t"],
+["力学","运动学","Projectile","/prəˈdʒek.taɪl/","抛体",""],
+["力学","运动学","Trajectory","/trəˈdʒek.tər.i/","轨迹",""],
+["力学","力","Force","/fɔːs/","力",""],
+["力学","力","Newton's laws","/ˈnjuː.tənz lɔːz/","牛顿定律",""],
+["力学","力","Net force","/net fɔːs/","合力","所有力的向量和"],
+["力学","力","Friction","/ˈfrɪk.ʃən/","摩擦力","F=μN"],
+["力学","力","Normal reaction","/ˈnɔː.məl riˈæk.ʃən/","法向反力","支持力"],
+["力学","力","Tension","/ˈten.ʃən/","张力","绳子中的拉力"],
+["力学","力","Weight","/weɪt/","重力","W=mg"],
+["力学","力","Coefficient of friction","/ˌkəʊ.ɪˈfɪʃ.ənt əv ˈfrɪk.ʃən/","摩擦系数","μ"],
+["力学","力","Resultant force","/rɪˈzʌl.tənt fɔːs/","合力",""],
+["力学","力","Equilibrium","/ˌiː.kwɪˈlɪb.ri.əm/","平衡","合力为零"],
+["力学","能量","Work","/wɜːk/","功","W=Fd cosθ"],
+["力学","能量","Kinetic energy","/kɪˈnet.ɪk ˈen.ə.dʒi/","动能","KE=½mv²"],
+["力学","能量","Potential energy","/pəˈten.ʃəl ˈen.ə.dʒi/","势能",""],
+["力学","能量","Gravitational PE","/ˌɡræv.ɪˈteɪ.ʃən.əl ˌpiː ˈiː/","重力势能","GPE=mgh"],
+["力学","能量","Conservation of energy","/ˌkɒn.səˈveɪ.ʃən əv ˈen.ə.dʒi/","能量守恒",""],
+["力学","能量","Power","/ˈpaʊ.ər/","功率","P=Fv"],
+["力学","能量","Efficiency","/ɪˈfɪʃ.ən.si/","效率",""],
+["力学","动量","Momentum","/məˈmen.təm/","动量","p=mv"],
+["力学","动量","Impulse","/ˈɪm.pʌls/","冲量","Ft=Δmv"],
+["力学","动量","Conservation of momentum","/ˌkɒn.səˈveɪ.ʃən əv məˈmen.təm/","动量守恒",""],
+["力学","动量","Elastic collision","/ɪˈlæs.tɪk kəˈlɪʒ.ən/","弹性碰撞","动能守恒"],
+["力学","动量","Inelastic collision","/ˌɪn.ɪˈlæs.tɪk kəˈlɪʒ.ən/","非弹性碰撞","动能不守恒"],
+["力学","动量","Coefficient of restitution","/ˌkəʊ.ɪˈfɪʃ.ənt əv ˌres.tɪˈtjuː.ʃən/","恢复系数","e"],
+
+// ─── 9. 矩阵 ──────────────────────────────────────────────────
+["矩阵","基础","Matrix","/ˈmeɪ.trɪks/","矩阵","（复数 matrices）"],
+["矩阵","基础","Matrices","/ˈmeɪ.trɪ.siːz/","矩阵（复数）",""],
+["矩阵","基础","Row","/rəʊ/","行","矩阵横排"],
+["矩阵","基础","Column","/ˈkɒl.əm/","列","矩阵纵排"],
+["矩阵","基础","Order of matrix","/ˈɔː.dər əv ˈmeɪ.trɪks/","矩阵的阶","m×n"],
+["矩阵","基础","Square matrix","/skweər ˈmeɪ.trɪks/","方阵","行数=列数"],
+["矩阵","基础","Identity matrix","/aɪˈden.tɪ.ti ˈmeɪ.trɪks/","单位矩阵","I，对角线为1"],
+["矩阵","基础","Zero matrix","/ˈzɪə.rəʊ ˈmeɪ.trɪks/","零矩阵","全为0"],
+["矩阵","运算","Matrix addition","/ˈmeɪ.trɪks əˈdɪʃ.ən/","矩阵加法","同阶才能相加"],
+["矩阵","运算","Scalar multiplication","/ˈskeɪ.lər ˌmʌl.tɪ.plɪˈkeɪ.ʃən/","标量乘法",""],
+["矩阵","运算","Matrix multiplication","/ˈmeɪ.trɪks ˌmʌl.tɪ.plɪˈkeɪ.ʃən/","矩阵乘法","行×列"],
+["矩阵","运算","Determinant","/dɪˈtɜː.mɪ.nənt/","行列式","det(A)或|A|"],
+["矩阵","运算","Inverse matrix","/ˈɪn.vɜːs ˈmeɪ.trɪks/","逆矩阵","A⁻¹"],
+["矩阵","运算","Singular matrix","/ˈsɪŋ.ɡjʊ.lər ˈmeɪ.trɪks/","奇异矩阵","行列式=0，无逆矩阵"],
+["矩阵","运算","Transpose","/trænsˈpəʊz/","转置","行列互换"],
+["矩阵","应用","Transformation matrix","/ˌtræns.fəˈmeɪ.ʃən ˈmeɪ.trɪks/","变换矩阵",""],
+["矩阵","应用","Linear transformation","/ˈlɪn.i.ər ˌtræns.fəˈmeɪ.ʃən/","线性变换",""],
+["矩阵","应用","Simultaneous equations","/ˌsɪm.əlˈteɪ.ni.əs ɪˈkweɪ.ʒənz/","联立方程","用逆矩阵求解"],
+
+// ─── 10. 几何 ─────────────────────────────────────────────────
+["几何","基础","Angle","/ˈæŋ.ɡəl/","角",""],
+["几何","基础","Acute angle","/əˈkjuːt ˈæŋ.ɡəl/","锐角","小于90°"],
+["几何","基础","Obtuse angle","/əbˈtjuːs ˈæŋ.ɡəl/","钝角","大于90°小于180°"],
+["几何","基础","Reflex angle","/ˈriː.fleks ˈæŋ.ɡəl/","优角","大于180°"],
+["几何","基础","Vertically opposite angles","/ˈvɜː.tɪ.kl.i ˈɒp.ə.zɪt ˈæŋ.ɡəlz/","对顶角",""],
+["几何","基础","Supplementary angles","/ˌsʌp.lɪˈmen.tər.i ˈæŋ.ɡəlz/","补角","和为180°"],
+["几何","基础","Complementary angles","/ˌkɒm.plɪˈmen.tər.i ˈæŋ.ɡəlz/","余角","和为90°"],
+["几何","多边形","Polygon","/ˈpɒl.ɪ.ɡɒn/","多边形",""],
+["几何","多边形","Interior angle","/ɪnˈtɪə.ri.ər ˈæŋ.ɡəl/","内角",""],
+["几何","多边形","Exterior angle","/ɪkˈstɪə.ri.ər ˈæŋ.ɡəl/","外角",""],
+["几何","多边形","Regular polygon","/ˈreɡ.jʊ.lər ˈpɒl.ɪ.ɡɒn/","正多边形","等边等角"],
+["几何","全等相似","Congruent","/ˈkɒŋ.ɡru.ənt/","全等","形状大小完全相同"],
+["几何","全等相似","Similar","/ˈsɪm.ɪ.lər/","相似","形状相同大小不同"],
+["几何","全等相似","Scale factor","/skeɪl ˈfæk.tər/","比例因子","相似比"],
+["几何","圆","Arc","/ɑːk/","弧","圆上的一段"],
+["几何","圆","Circumference","/səˈkʌm.fər.əns/","周长","圆的周长"],
+["几何","圆","Inscribed angle","/ɪnˈskraɪbd ˈæŋ.ɡəl/","圆周角",""],
+["几何","圆","Central angle","/ˈsen.trəl ˈæŋ.ɡəl/","圆心角",""],
+["几何","圆","Cyclic quadrilateral","/ˈsɪk.lɪk ˌkwɒd.rɪˈlæt.ər.əl/","圆内接四边形","对角互补"],
+["几何","立体","Volume","/ˈvɒl.juːm/","体积",""],
+["几何","立体","Surface area","/ˈsɜː.fɪs ˈeə.ri.ə/","表面积",""],
+["几何","立体","Prism","/ˈprɪz.əm/","棱柱",""],
+["几何","立体","Pyramid","/ˈpɪr.ə.mɪd/","棱锥",""],
+["几何","立体","Cylinder","/ˈsɪl.ɪn.dər/","圆柱",""],
+["几何","立体","Cone","/kəʊn/","圆锥",""],
+["几何","立体","Sphere","/sfɪər/","球",""],
+];
+
+// ── Topic & Category config ───────────────────────────────────
+const TOPICS = [...new Set(ALL.map(v => v[0]))];
+
+const TOPIC_COLOR = {
+  "代数与函数":  "#1A5C38",
+  "坐标几何":    "#2E4A8B",
+  "三角学":      "#6B2D8B",
+  "指数与对数":  "#8B4500",
+  "微积分":      "#8B1A1A",
+  "向量":        "#1A6B6B",
+  "概率与统计":  "#1A3D6B",
+  "力学":        "#4A4A1A",
+  "矩阵":        "#3D1A6B",
+  "几何":        "#1A4A4A",
+};
+
+function topicColor(t) { return TOPIC_COLOR[t] || "#1F3864"; }
+function lighten(hex) {
+  // return very light version
+  const map = {
+    "#1A5C38":"#E8F5EE","#2E4A8B":"#EBF0FB","#6B2D8B":"#F3EBF9",
+    "#8B4500":"#FBF0E8","#8B1A1A":"#FCEAEA","#1A6B6B":"#E8F5F5",
+    "#1A3D6B":"#E8EEF9","#4A4A1A":"#F5F5E8","#3D1A6B":"#F0E8F9",
+    "#1A4A4A":"#E8F5F5",
+  };
+  return map[hex] || "#F5F5F5";
+}
+
+// ── TTS ───────────────────────────────────────────────────────
+let britishVoice = null;
+function loadVoices() {
+  const vs = speechSynthesis.getVoices();
+  const picks = [
+    v => v.lang==='en-GB' && /Daniel|Google/.test(v.name),
+    v => v.lang==='en-GB',
+    v => v.lang.startsWith('en'),
+  ];
+  for (const fn of picks) { const f=vs.find(fn); if(f){britishVoice=f;break;} }
+  const badge = document.getElementById('voiceBadge');
+  badge.textContent = britishVoice ? `🔊 ${britishVoice.name}` : '🔊 系统语音';
+  badge.style.color = britishVoice ? '#1A6B6B' : '#888';
+}
+if (speechSynthesis.onvoiceschanged !== undefined)
+  speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 600);
+
+let activeBtn = null;
+function speak(word, btn) {
+  speechSynthesis.cancel();
+  if (activeBtn) { activeBtn.classList.remove('speaking'); activeBtn.innerHTML = icon()+'播放'; }
+  if (activeBtn === btn) { activeBtn = null; return; }
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-GB'; u.rate = 0.85;
+  if (britishVoice) u.voice = britishVoice;
+  btn.classList.add('speaking'); btn.innerHTML = icon()+'播放中…'; activeBtn = btn;
+  u.onend = u.onerror = () => {
+    btn.classList.remove('speaking'); btn.innerHTML = icon()+'播放';
+    if (activeBtn===btn) activeBtn = null;
+  };
+  speechSynthesis.speak(u);
+}
+
+function icon() {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+}
+
+function cambridgeUrl(en) {
+  return 'https://dictionary.cambridge.org/dictionary/english/' +
+    en.split('(')[0].split('/')[0].trim().toLowerCase().replace(/[\s']/g, w => w===' ' ? '-' : '');
+}
+
+// ── Build UI ──────────────────────────────────────────────────
+const tabsEl = document.getElementById('topicTabs');
+const mainEl = document.getElementById('mainContent');
+let allRows = [];
+let activeTopic = 'all';
+
+// All tab
+const allTab = document.createElement('button');
+allTab.className = 'tab active'; allTab.textContent = '全部';
+allTab.style.background = '#1F3864'; allTab.style.color = 'white'; allTab.style.borderColor = '#1F3864';
+allTab.onclick = () => setTopic('all', allTab);
+tabsEl.appendChild(allTab);
+
+// Topic tabs
+TOPICS.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'tab'; btn.textContent = t;
+  btn.style.color = topicColor(t); btn.style.borderColor = topicColor(t);
+  btn.onclick = () => setTopic(t, btn);
+  tabsEl.appendChild(btn);
+});
+
+// Build sections per topic then per category
+TOPICS.forEach(topic => {
+  const tc = topicColor(topic);
+  const topicItems = ALL.filter(v => v[0] === topic);
+  const cats = [...new Set(topicItems.map(v => v[1]))];
+
+  const section = document.createElement('div');
+  section.className = 'topic-section'; section.dataset.topic = topic;
+
+  const th = document.createElement('div');
+  th.className = 'topic-header';
+  th.style.background = `linear-gradient(135deg, ${tc}, ${tc}cc)`;
+  const count = topicItems.length;
+  th.innerHTML = `<span>📚 ${topic}</span><span class="badge">${count} 词</span>`;
+  section.appendChild(th);
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = `<tr style="background:${tc}cc">
+    <th style="width:6%">类别</th>
+    <th style="width:20%">英文术语</th>
+    <th style="width:20%">国际音标 IPA</th>
+    <th style="width:10%">中文</th>
+    <th style="width:26%">备注</th>
+    <th style="width:18%;text-align:center">发音</th>
+  </tr>`;
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  let prevCat = '';
+  topicItems.forEach(item => {
+    const [, cat, en, ipa, zh, note] = item;
+    const tr = document.createElement('tr');
+    tr.dataset.topic = topic; tr.dataset.cat = cat;
+    tr.dataset.en = en.toLowerCase(); tr.dataset.ipa = ipa; tr.dataset.zh = zh;
+
+    const playWord = en.split('(')[0].split('/')[0].trim();
+    const showCat = cat !== prevCat;
+    prevCat = cat;
+
+    tr.innerHTML = `
+      <td style="font-size:0.72rem;color:${tc};font-weight:600;white-space:nowrap">${showCat ? cat : ''}</td>
+      <td class="td-en">${en}</td>
+      <td class="td-ipa">${ipa}</td>
+      <td class="td-zh">${zh}</td>
+      <td class="td-note">${note}</td>
+      <td style="text-align:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <button class="play-btn" style="color:${tc};border-color:${tc}"
+            onclick="speak('${playWord.replace(/'/g,"\\'")}',this)">
+            ${icon()}播放
+          </button>
+          <a class="cambridge-link" href="${cambridgeUrl(en)}" target="_blank">📖 剑桥</a>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+    allRows.push(tr);
+  });
+
+  table.appendChild(tbody);
+  section.appendChild(table);
+  mainEl.appendChild(section);
+});
+
+updateCount();
+
+// ── Filter ────────────────────────────────────────────────────
+function setTopic(t, btn) {
+  activeTopic = t;
+  document.querySelectorAll('.tab').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = 'white';
+    const isAll = b.textContent === '全部';
+    b.style.color = isAll ? '#1F3864' : (TOPIC_COLOR[b.textContent] || '#333');
+    b.style.borderColor = isAll ? '#1F3864' : (TOPIC_COLOR[b.textContent] || '#ccc');
+  });
+  btn.classList.add('active');
+  btn.style.background = t === 'all' ? '#1F3864' : topicColor(t);
+  btn.style.color = 'white'; btn.style.borderColor = 'transparent';
+  document.querySelectorAll('.topic-section').forEach(s => {
+    s.classList.toggle('hidden', t !== 'all' && s.dataset.topic !== t);
+  });
+  doFilter();
+}
+
+function doFilter() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let vis = 0;
+  allRows.forEach(tr => {
+    const topicMatch = activeTopic === 'all' || tr.dataset.topic === activeTopic;
+    const textMatch = !q || tr.dataset.en.includes(q) || tr.dataset.ipa.toLowerCase().includes(q) || tr.dataset.zh.includes(q);
+    const show = topicMatch && textMatch;
+    tr.classList.toggle('hidden', !show);
+    if (show) vis++;
+  });
+  document.querySelectorAll('.topic-section').forEach(s => {
+    if (activeTopic !== 'all' && s.dataset.topic !== activeTopic) return;
+    const hasVis = [...s.querySelectorAll('tbody tr')].some(r => !r.classList.contains('hidden'));
+    if (!s.classList.contains('hidden')) s.style.display = hasVis ? '' : 'none';
+  });
+  updateCount(vis);
+}
+
+function updateCount(n) {
+  document.getElementById('visCount').textContent = n !== undefined ? n : allRows.length;
+}
+</script>
+</body>
+</html>
